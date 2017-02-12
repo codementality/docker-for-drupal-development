@@ -77,7 +77,7 @@ Finally, let's see if our web service is running an NginX web server.
 
 Through our port mapping, we can access this service from our host environment on port `8000`.  Launch a web browser, navigate to `http://localhost:8000`, and you should see the default NginX welcome page:
 
-![Welcome to NginX](https://github.com/lhridley/dockerdrop/raw/01-add-nginx/docs/nginx-welcome.png "Welcome to NginX")
+.. image:: images/nginx-welcome.png
 
 At this point, your `docker-compose.yml` should look like the following:
 
