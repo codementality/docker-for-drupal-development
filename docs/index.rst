@@ -12,14 +12,14 @@ This documentation serves as reference material to accompany the training class 
    :maxdepth: 2
    :caption: Contents
 
-      prerequisites
-      lessonone
-      lessontwo
-      lessonthree
-      lessonfour
-      lessonfive
-      lessonsix
-      lessonseven
-      lessoneight
-      lessonnine
-      lesson10
+   prerequisites
+   lessonone
+   lessontwo
+   lessonthree
+   lessonfour
+   lessonfive
+   lessonsix
+   lessonseven
+   lessoneight
+   lessonnine
+   lesson10
