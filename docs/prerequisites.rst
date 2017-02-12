@@ -5,6 +5,7 @@ Prerequisites
    :maxdepth: 2
 
    :doc:`prerequisites`
+   :doc:`lessonone`
 
 Please check the systems requirements for your preferred operating system.  Docker is supported on the following platforms:
 

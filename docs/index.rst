@@ -10,6 +10,7 @@ Docker for Development with Drupal
    :maxdepth: 2
 
    :doc:`prerequisites`
+   :doc:`lessonone`
 
 This documentation serves as reference material to accompany the training class "Docker for Development with Drupal".
 
@@ -18,4 +19,7 @@ Contents
 ========
 
 * :doc:`prerequisites`
+* :doc:`lessonone`
+
+
 
