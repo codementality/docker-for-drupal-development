@@ -22,4 +22,4 @@ This documentation serves as reference material to accompany the training class 
    lessonseven
    lessoneight
    lessonnine
-   lesson10
+   lessonten
