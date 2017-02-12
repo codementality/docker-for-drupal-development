@@ -11,6 +11,15 @@ Docker for Development with Drupal
 
       prerequisites
       lessonone
+      lessontwo
+      lessonthree
+      lessonfour
+      lessonfive
+      lessonsix
+      lessonseven
+      lessoneight
+      lessonnine
+      lesson10
 
 This documentation serves as reference material to accompany the training class "Docker for Development with Drupal".
 
@@ -27,6 +36,8 @@ Contents
 * :doc:`lessonsix`
 * :doc:`lessonseven`
 * :doc:`lessoneight`
+* :doc:`lessonnine`
+* :doc:`lessonten`
 
 
 
