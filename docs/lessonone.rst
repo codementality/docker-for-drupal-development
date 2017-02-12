@@ -1,8 +1,7 @@
-Lesson 1:
-=============
+Lesson 1: Set up a web service
+==============================
 
 .. toctree::
    :maxdepth: 2
 
-   :doc:`prerequisites`
-   :doc:`lessonone`
+Placeholder text

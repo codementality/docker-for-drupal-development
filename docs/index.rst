@@ -6,11 +6,13 @@
 Docker for Development with Drupal
 ==================================
 
+Contents:
+
 .. toctree::
    :maxdepth: 2
 
-   :doc:`prerequisites`
-   :doc:`lessonone`
+      prerequisites
+      lessonone
 
 This documentation serves as reference material to accompany the training class "Docker for Development with Drupal".
 
@@ -20,6 +22,14 @@ Contents
 
 * :doc:`prerequisites`
 * :doc:`lessonone`
+* :doc:`lessontwo`
+* :doc:`lessonthree`
+* :doc:`lessonfour`
+* :doc:`lessonfive`
+* :doc:`lessonsix`
+* :doc:`lessonseven`
+* :doc:`lessoneight`
+
 
 
 
