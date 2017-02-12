@@ -3,15 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Docker for Development with Drupal's documentation!
-==============================================================
+Docker for Development with Drupal
+==================================
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
-
+Does this show in the text of the page?
 
 Indices and tables
 ==================
