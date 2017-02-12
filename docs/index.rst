@@ -6,8 +6,6 @@
 Docker for Development with Drupal
 ==================================
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
 
