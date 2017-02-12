@@ -40,11 +40,11 @@ This "pins" your stack build to use this specific version of the official NginX 
 3:  Save the changes and build your stack
 #########################################
 
-Save the revised `docker-compose.yml` file, and issue the following command:
+Save the revised `docker-compose.yml` file, and issue the following command::
 
 `docker-compose up -d`
 
-You should have seen output similar to the following:
+You should have seen output similar to the following::
 
 
     Creating network "dockerdrop_default" with the default driver
@@ -58,7 +58,7 @@ You should have seen output similar to the following:
     Creating dockerdrop_web_1
 
 
-Notice the 4th line of the output above:
+Notice the 4th line of the output above::
 
     386a066cd84a: Already exists
 
@@ -73,12 +73,11 @@ There is one layer that is common between `nginx:latest` and `nginx:1.10.3`, whi
 4:  Delete the `nginx:latest` image from your cache
 ###################################################
 
-This is an optional step, but helps keep your local Docker cache from becoming cluttered with unused images.  Issue the following command:
+This is an optional step, but helps keep your local Docker cache from becoming cluttered with unused images.  Issue the following command::
 
     docker images
 
-You should see something similar to the following:
-
+You should see something similar to the following::
 
     REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
     nginx               1.10.3              5acd1b9bc321        2 weeks ago         180.7 MB
