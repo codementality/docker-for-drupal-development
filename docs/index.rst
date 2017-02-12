@@ -23,24 +23,3 @@ This documentation serves as reference material to accompany the training class 
       lessoneight
       lessonnine
       lesson10
-
-
-========
-Contents
-========
-
-* :doc:`prerequisites`
-* :doc:`lessonone`
-* :doc:`lessontwo`
-* :doc:`lessonthree`
-* :doc:`lessonfour`
-* :doc:`lessonfive`
-* :doc:`lessonsix`
-* :doc:`lessonseven`
-* :doc:`lessoneight`
-* :doc:`lessonnine`
-* :doc:`lessonten`
-
-
-
-
