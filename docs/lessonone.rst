@@ -1,8 +1,10 @@
 Lesson 1: Set up a web service
 ==============================
 
-1: Create a file called `docker-compose.yml` in the root of your project.
-#########################################################################
+1: Create a Docker Compose yaml file
+####################################
+
+Create a file called `docker-compose.yml` in the root of your project.
 
 This file will contain all information about the services, networks and volumes that will make up your development environment stack.  As we progress with this project, we will modify this file to modify services, define additional ones, add volumes and configure each volume and service to work together to build a viable development stack for our project.
 
@@ -14,19 +16,16 @@ Add the following to the top of your `docker-compose.yml` file
 
 This key designates which version of docker-compose file format that our `.yml` file.  Backwards compatibility has been maintained in docker-compose currently so that earlier versions will work with the current version of Docker Compose, but each version incorporates new features of Docker that weren't available in previous versions.  While backwards compatibility with the file format has been maintained, not all formats work with all versions of Docker; the various `version` key values are tied to specific Docker versions.
 
-If you see a `docker-compose.yml` file without a version key, it is a `version 1` docker-compose file.  These files are considered deprecated, and support for `version ` docker-compose.yml files will be removed eventually.  `Version 2` is the current recommended format.  It requires that you are running Docker Engine version 1.10.0 or greater.  To designate a `docker-compose.yml` file as compliant with `Version 2`, you must explicitely include this line in your `.yml` file.
+If you see a `docker-compose.yml` file without a version key, it is a `version 1` docker-compose file.  This version is considered deprecated.  `Version 2` is the current recommended format.  It requires that you are running Docker Engine version 1.10.0 or greater.  To designate a `docker-compose.yml` file as compliant with `Version 2`, you must explicitely include this line in your `.yml` file.
 
 Recently Docker published a `version '3'` version of the docker-compose file; however since it is new, and not yet supported on TravisCI, we will stick with Version 2 for this workshop.
 
-
-3:  add a `services` key below the `version` key
-################################################
+3:  Add a `services` key
+########################
 
 Add the following line below the `version` key in your `docker-compose.yml` file:
 
-~~~
-services:
-~~~
+`services:`
 
 A Docker service is an instance of a Docker image that is used in your stack for a specific purpose.  Each service will provide a specific, isolated application in the overall configuration, and will be granted permission through configuration settings included in your `docker-compose.yml` file to interact with other service containers in the stack.  This concept is referred to as `application containerization`, and is a operating system level virtualization method for deploying and running distributed applications without launching an entire virtualization environment such as a virtual machine.  Each container houses all the components such as files, environment variables and libraries necessary to run the its application.
 
@@ -36,10 +35,12 @@ A Docker service is an instance of a Docker image that is used in your stack for
 Next add a `web` service key below the `services` key, and define your web service as follows:
 
 ~~~
+
   web:
     image: nginx:latest
     ports:
         - 8000:80
+
 ~~~
 
 The `image` key designates which docker image to use to launch this particular service (in this case the web server, which is designated as the `web` service).
@@ -71,10 +72,12 @@ Through our port mapping, we can access this service from our host environment o
 At this point, your `docker-compose.yml` should look like the following:
 
 ~~~
-version: '2'
-services:
-  web:
-    image: nginx:latest
-    ports:
-        - 8000:80
+
+    version: '2'
+    services:
+      web:
+        image: nginx:latest
+        ports:
+            - 8000:80
+
 ~~~
