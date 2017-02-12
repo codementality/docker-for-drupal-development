@@ -1,10 +1,6 @@
 Prerequisites
 =============
 
-.. toctree::
-   :maxdepth: 2
-
-
 Please check the systems requirements for your preferred operating system.  Docker is supported on the following platforms:
 
 * Windows (Windows 10, 64-bit, with hardware / software limitations)
