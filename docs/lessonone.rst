@@ -17,16 +17,20 @@ Add the following to the top of your `docker-compose.yml` file
 
    version: '2'
 
-This key designates which version of docker-compose file format that our `.yml` file.  Backwards compatibility has been maintained in docker-compose currently so that earlier versions will work with the current version of Docker Compose, but each version incorporates new features of Docker that weren't available in previous versions.  While backwards compatibility with the file format has been maintained, not all formats work with all versions of Docker; the various `version` key values are tied to specific Docker versions.
+This key designates which Docker Compose file format version that our `.yml` file is using.  Backwards compatibility has been maintained in docker-compose currently so that earlier versions will work with the current version of Docker Compose, but each version incorporates new features of Docker that weren't available in previous versions.
 
-If you see a `docker-compose.yml` file without a version key, it is a `version 1` docker-compose file.  This version is considered deprecated.  `Version 2` is the current recommended format.  It requires that you are running Docker Engine version 1.10.0 or greater.  To designate a `docker-compose.yml` file as compliant with `Version 2`, you must explicitely include this line in your `.yml` file.
+While backwards compatibility with the file format has been maintained, not all formats work with all versions of Docker; the various `version` key values are tied to specific Docker versions.
+
+If you see a `docker-compose.yml` file without a version key, it is a `version 1` docker-compose file.  This version is considered deprecated.
+
+`Version 2` is the current recommended format.  It requires that you are running Docker Engine version 1.10.0 or greater.  To designate a `docker-compose.yml` file as compliant with `Version 2`, you must explicitely include this line in your `.yml` file.
 
 Recently Docker published a `version '3'` version of the docker-compose file; however since it is new, and not yet supported on TravisCI, we will stick with Version 2 for this workshop.
 
 3:  Add a `services` key
 ########################
 
-Add the following line below the `version` key in your `docker-compose.yml` file:
+Add a `services` key below the `version` key in your `docker-compose.yml` file:
 
 .. code-block:: yaml
    :linenos:
@@ -35,7 +39,9 @@ Add the following line below the `version` key in your `docker-compose.yml` file
    version: '2'
    services:
 
-A Docker service is an instance of a Docker image that is used in your stack for a specific purpose.  Each service will provide a specific, isolated application in the overall configuration, and will be granted permission through configuration settings included in your `docker-compose.yml` file to interact with other service containers in the stack.  This concept is referred to as `application containerization`, and is a operating system level virtualization method for deploying and running distributed applications without launching an entire virtualization environment such as a virtual machine.  Each container houses all the components such as files, environment variables and libraries necessary to run the its application.
+A Docker service is an instance of a Docker image that is used in your stack for a specific purpose.  Each service will provide a specific, isolated application in the overall configuration, and will be granted permission through configuration settings included in your `docker-compose.yml` file to interact with other service containers in the stack.
+
+This concept is referred to as `application containerization`, and is a operating system level virtualization method for deploying and running distributed applications without launching an entire virtualization environment such as a virtual machine.  Each container houses all the components such as files, environment variables, binaries and libraries necessary to run the its application.
 
 4.  Define your web service
 ###########################
@@ -55,7 +61,9 @@ Next add a `web` service key below the `services` key, and define your web servi
 
 The `image` key designates which docker image to use to launch this particular service (in this case the web server, which is designated as the `web` service).
 
-The `ports` key configures the mapping of `external` (host) ports to `internal` (container) ports for this service.  The `nginx` container's Dockerfile exposes an internal port, port 80, to the docker network layer and services running in othr containers on the Docker network.  On the host operating system, we can control which ports our host operating system uses to access the service container's services by mapping one of the available ports on our host system to the internally exposed port on the service container.  We will look at the structure of a Dockerfile a bit later.
+The `ports` key configures the mapping of `external` (host) ports to `internal` (container) ports for this service.  The `nginx` container's Dockerfile exposes an internal port, port 80, to the docker network layer and services running in other containers on the Docker network.
+
+On the host operating system, we can control which ports our host operating system uses to access the service container's services by mapping one of the available ports on our host system to the internally exposed port on the service container.  We will look at the structure of a Dockerfile a bit later.
 
 Our configuration is mapping port `8000` on our host system to the internally exposed port `80` on our NginX container.
 
@@ -66,7 +74,7 @@ Execute the following command:
 
    docker-compose up -d
 
-`docker-compose up` builds, creates, starts, and attaches to containers for a service, in this case the service we've defined as our `web` service.  If we have linked to other services (we'll cover this later), this command will also start those services.
+`docker-compose up` builds, creates, starts, and attaches to containers for a service, in this case the service we've defined as our `web` service.  If we are starting a service that is tied to other services (we'll cover this later), this command will also start those services.
 
 By default, `docker-compose up` runs a service interactively, and when the command exits, the services that were launched with that command are terminated.  For a service such as a web service that needs to persist, this is not a desired behavior.  Because of that, there is a parameter, `-d` that can be passed when executing this command that will launch the services defined in your `docker-compose.yml` file as background services, and those services that need to persist (such as our `web` service) after execution of the `docker-compose` command ends will continue to run in the background.
 
