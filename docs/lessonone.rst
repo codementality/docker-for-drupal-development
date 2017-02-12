@@ -12,7 +12,7 @@ This file will contain all information about the services, networks and volumes 
 #############################################
 Add the following to the top of your `docker-compose.yml` file
 
-`version: '2'`
+    version: '2'
 
 This key designates which version of docker-compose file format that our `.yml` file.  Backwards compatibility has been maintained in docker-compose currently so that earlier versions will work with the current version of Docker Compose, but each version incorporates new features of Docker that weren't available in previous versions.  While backwards compatibility with the file format has been maintained, not all formats work with all versions of Docker; the various `version` key values are tied to specific Docker versions.
 
@@ -25,7 +25,7 @@ Recently Docker published a `version '3'` version of the docker-compose file; ho
 
 Add the following line below the `version` key in your `docker-compose.yml` file:
 
-`services:`
+    services:
 
 A Docker service is an instance of a Docker image that is used in your stack for a specific purpose.  Each service will provide a specific, isolated application in the overall configuration, and will be granted permission through configuration settings included in your `docker-compose.yml` file to interact with other service containers in the stack.  This concept is referred to as `application containerization`, and is a operating system level virtualization method for deploying and running distributed applications without launching an entire virtualization environment such as a virtual machine.  Each container houses all the components such as files, environment variables and libraries necessary to run the its application.
 
@@ -34,14 +34,14 @@ A Docker service is an instance of a Docker image that is used in your stack for
 
 Next add a `web` service key below the `services` key, and define your web service as follows:
 
-~~~
 
-  web:
-    image: nginx:latest
-    ports:
+
+    web:
+      image: nginx:latest
+      ports:
         - 8000:80
 
-~~~
+
 
 The `image` key designates which docker image to use to launch this particular service (in this case the web server, which is designated as the `web` service).
 
@@ -54,7 +54,7 @@ Our configuration is mapping port `8000` on our host system to the internally ex
 
 Execute the following command:
 
-`docker-compose up -d`
+   docker-compose up -d
 
 `docker-compose up` builds, creates, starts, and attaches to containers for a service, in this case the service we've defined as our `web` service.  If we have linked to other services (we'll cover this later), this command will also start those services.
 
@@ -71,7 +71,6 @@ Through our port mapping, we can access this service from our host environment o
 
 At this point, your `docker-compose.yml` should look like the following:
 
-~~~
 
     version: '2'
     services:
@@ -80,4 +79,3 @@ At this point, your `docker-compose.yml` should look like the following:
         ports:
             - 8000:80
 
-~~~
