@@ -12,6 +12,14 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from recommonmark.parser import CommonMarkParser
+
+source_parsers = {
+    '.md': CommonMarkParser,
+}
+
+source_suffix = ['.rst', '.md']
+
 import sys
 import os
 
