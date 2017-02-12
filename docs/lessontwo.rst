@@ -84,7 +84,7 @@ You should see something similar to the following::
     nginx               latest              05a60462f8ba        2 weeks ago         181.5 MB
 
 
-The IMAGE ID is the hash assigned to each image stored in your local cache.  To delete the `nginx:latest` image, issue the following command, replacing the hash for `nginx:latest` with the one shown on your local machine:
+The IMAGE ID is the hash assigned to each image stored in your local cache.  To delete the `nginx:latest` image, issue the following command, replacing the hash for `nginx:latest` with the one shown on your local machine::
 
    docker rmi 05a60462f8ba <== replace hash
 
