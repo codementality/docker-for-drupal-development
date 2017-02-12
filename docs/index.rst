@@ -6,17 +6,16 @@
 Docker for Development with Drupal
 ==================================
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
 
-Does this show in the text of the page?
+   :doc:`prerequisites`
 
-Indices and tables
-==================
+This documentation serves as reference material to accompany the training class "Docker for Development with Drupal".
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+========
+Contents
+========
+
+* :doc:`prerequisites`
 
