@@ -6,8 +6,11 @@
 Docker for Development with Drupal
 ==================================
 
+This documentation serves as reference material to accompany the training class "Docker for Development with Drupal".
+
 .. toctree::
    :maxdepth: 2
+   :caption: Contents
 
       prerequisites
       lessonone
@@ -21,7 +24,6 @@ Docker for Development with Drupal
       lessonnine
       lesson10
 
-This documentation serves as reference material to accompany the training class "Docker for Development with Drupal".
 
 ========
 Contents
