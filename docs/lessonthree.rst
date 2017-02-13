@@ -64,6 +64,7 @@ Create a file in the `docker/nginx` directory called `default.conf`, and put the
 
 .. code-block:: javascript
    :linenos:
+   :emphasize-lines: 87
 
     # Let's redirect https requests to http; you'll want to modify this if you
     # need to test over https
@@ -184,6 +185,19 @@ Create a file in the `docker/nginx` directory called `default.conf`, and put the
         }
     }
 
+Note the highlighted line above, number 87:
+
+    fastcgi_pass php:9000;
+
+This defines the proxy PHP service for NginX as "php:9000", which means that NginX will pass all HTTP requests to the service identified with the domain name "php", to port 9000 on that service.
+
+When Docker Compose passes statements to Docker to build this stack, Docker will set up a private network for the running containers in the stack, will set up a DNS service to map each service defined in the `docker-compose.yml` file to an IP address on that network, and each container on that network will be identified by the service tag from the `docker-compose.yml` file use to define that container.
+
+NginX, as a running container on the Docker network, will look for a domain name of "php" in the DNS services available to it, starting with the private network set up by Docker, will resolve that domain name to its associated IP address, and will communicate with that service through the designated port.  NginX doesn't know or care that PHP is running in a docker container.  If the domain alias is not found in the internal network, Docker will next look to Google DNS, or the next level of DNS available on the network.
+
+.. Note::
+
+    Docker does not recognize DNS entries in the host's `/etc/host` file when resolving domain names and aliases.
 
 Save this file.
 
