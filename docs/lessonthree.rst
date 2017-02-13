@@ -6,7 +6,7 @@ Lesson 3:  Add PHP, customize NginX
 
 Let's get our project ready to serve up a PHP application.
 
-Create a directory called `web` at the root of your project.  Inside that directory, create a filed called `index.php` with the following contents::
+Create a directory called `web` at the root of your project.  Inside that directory, create a filed called `index.php` with the following contents:
 
 .. code-block:: php
    :linenos:
@@ -34,7 +34,7 @@ Open `docker-compose.yml` in your favorite editor and add the following lines fo
          - 8000:80
 
       php:
-        image: php:7.1-fpm
+        image: php:7.0-fpm
         expose:
           - 9000
         volumes:
@@ -51,7 +51,8 @@ We have also added a `volumes` key to our PHP container configuration, which we 
 
 Data volumes can be structured so that they are shared among containers, as well as configured to share directories with the host machine in certain circumstances, which is what we are doing here.  Similar to ports, shared volumes can be mapped in the following format:  `<host machine directory>:<container directory>`.
 
-What we're saying here is that the current directory (designated with . ) must be mounted inside the container as its /var/www/html directory. To simplify, it means that the content of the current directory on our host machine will be in sync with the containers. It also means that this content will be persistent even if we destroy the container.
+What we're saying here is that the current directory (designated with `.` ) must be mounted inside the container as its /var/www/html directory. To simplify, it means that the content of the current directory on our host machine will be in sync with the containers. It also means that this content will be persistent even if we destroy the container.
+
 More on that later.
 
 3. Add a custom nginx config file to your repository
@@ -290,6 +291,11 @@ In the `docker/nginx` folder, create a file named `docker-entrypoint.sh` and add
 
     exec "$@"
 
+Let's take a look at the entrypoint script for a minute.
+
+Notice the four "if" statements...what we are doing here is taking the environment variables stored in `$NGINX_DOCROOT`, `$NGINX_MAX_BODY_SIZE`, and `$NGINX_SERVER_NAME`, and using them if they exist to replace values in our `default.conf` file.
+
+These correspond with the `environment` variables in our `docker-compose.yml` file.
 
 6. Reload all containers in your stack
 ######################################
