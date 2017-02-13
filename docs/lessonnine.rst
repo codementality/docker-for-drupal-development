@@ -8,7 +8,7 @@ With an image repository, we can utilize pre-built images instead of building an
 We will be creating two repositories on Docker Hub to house our custom Docker image files:  one for the PHP image and one for the NginX image.
 
 1:  Create a repository on Docker Hub
-=====================================
+#####################################
 
 Log into Docker Hub, select "Create" from the menu in the upper right, then pick "Create Automated Build" from the dropdown:
 
@@ -16,7 +16,7 @@ Log into Docker Hub, select "Create" from the menu in the upper right, then pick
 
 Click "Create Autobuild Github" on the left hand side of the screen...
 
-.. image:: images/lesson9-step1-ill1.png
+.. image:: images/lesson9-step1-ill2.png
 
 Select your user account from Github on the left, and filter your repositories until you find the "dockerdrop" Github Repo on your right...
 
@@ -37,7 +37,7 @@ Your repository will be created, and will be linked to your Github source code r
 Your image repository has been created with the name <githubaccount>/dockerdrop-php, and it's linked to your Github source respository.  The link to the Github repo is on the lower right.
 
 2:  Configure your Build Settings
-=================================
+#################################
 
 Click on "Build Settings" in the menu below the image repository name. You'll be taken to a page that looks similar to this:
 
@@ -72,10 +72,10 @@ Now, let's rinse and repeat for our NginX repository, with the following changes
 * Name your repository "dockerdrop-nginx"
 * Use the "develop" branch and the Dockerfile location of "/docker/nginx/"
 
-Your Docker Hub images are now linked to your Github repository, and will automatically rebuild whenever you push changes to the files locatedin the "develop" branch, in the folder you indicated when you set up your build rule on Docker Hub.
+Your Docker Hub images are now linked to your Github repository, and will automatically rebuild whenever you push changes to the files located in the "develop" branch, in the folder you indicated when you set up your build rule on Docker Hub.
 
-3:  Change your `docker-compose.yml` file to use your Docker Hub images
-=======================================================================
+3:  Change your `docker-compose.yml` file to use your hosted Docker Hub images
+##############################################################################
 
 Edit your `docker-compose.yml` file.  Under the "web" service tag, remove the following:
 
@@ -91,9 +91,9 @@ and replace it with:
 
     image: dockerdrop/dockerdrop-nginx:latest
 
-Use your repository's namespace in place of "dockerdrop".
+Use your repository's namespace in place of "dockerdrop" to the left of the forward slash.
 
-Do the same for the php service, only use the "dockerdrop-php:latest" repo instead for the image name.
+Do the same for the php service, only use the "dockerdrop-php:latest" repo name instead for the image name.
 
 Save your docker compose file, which should look as follows:
 
@@ -163,3 +163,25 @@ Save your docker compose file, which should look as follows:
       mysql-data:
         driver: local
 
+4: Add a new target to your Makefile
+####################################
+
+We want to make sure when we build a new project, or add a new team member to the team, that they are working with the latest image.  In addition, when we push new images we want to make sure that team members refresh their local development environment to work with the latest images for our project.
+
+By default, Docker will pull images from the local cache when you launch an image instance.  Images are only pulled from Docker Hub if the local cache doesn't contain an image that matches the name you specify.
+
+You can instruct Docker to check for new images by passing a request to "pull" images.
+
+Edit your Makefile, and add the following target to the end of your file.
+
+.. code-block:: bash
+   :linenos:
+
+    pull-images:
+    	docker-compose pull
+
+Then up under the "init" target at the top of the file, insert the line `make pull-images` as the 7th line, right above `docker-compose up -d --build`.
+
+Save your Makefile.
+
+You've just added a new target for convenience that will pull and refresh your image cache by executing `make pull-images`, and a new step to automatically do this when you run `make init`.
