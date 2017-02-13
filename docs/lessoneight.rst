@@ -1,4 +1,4 @@
-Lesson 8:  Add a Makefile for Convenience
-=========================================
+Lesson 7:  Add a Drupal Installation
+====================================
 
 Placeholder text
