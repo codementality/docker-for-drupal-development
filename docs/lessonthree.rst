@@ -236,7 +236,7 @@ Now, to use the container we just defined, we need to modify our `docker-compose
 .. code-block:: yaml
    :linenos:
 
-    image: nginx:1.10.2
+    image: nginx:1.10.3
 
 with this:
 
@@ -247,7 +247,7 @@ with this:
 
 We've basically just instructed docker-compose to build a web container from the Dockerfile we defined when we start our stack, and provided the location of that Dockerfile.
 
-Now, let's add some environment variables for our NginX container, the values from which are used in our entrypoint script.  Add the following to your `docker-compose.yml` file under the `web` service tag:
+Now, let's add some environment variables for our NginX container.  These values will be used by our entrypoint script, which we'll define in a moment.  Add the following to your `docker-compose.yml` file under the `web` service tag:
 
 .. code-block:: yaml
    :linenos:
@@ -328,27 +328,27 @@ At this point your docker-compose.yml file should look as follows:
 .. code-block:: yaml
    :linenos:
 
-version: '2'
+    version: '2'
 
-services:
+    services:
 
-  web:
-    build: ./docker/nginx/
-    ports:
-      - "8000:80"
-    volumes_from:
-      - php
-    depends_on:
-      - php
-    environment:
-      NGINX_DOCROOT: web
-      NGINX_SERVER_NAME: localhost
-      # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
-      NGINX_MAX_BODY_SIZE: 16m
+      web:
+        build: ./docker/nginx/
+        ports:
+          - "8000:80"
+        volumes_from:
+          - php
+        depends_on:
+          - php
+        environment:
+          NGINX_DOCROOT: web
+          NGINX_SERVER_NAME: localhost
+          # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
+          NGINX_MAX_BODY_SIZE: 16m
 
-  php:
-    image: php:7.0-fpm
-    expose:
-      - 9000
-    volumes:
-      - ./web:/var/www/html/web
+      php:
+        image: php:7.0-fpm
+        expose:
+          - 9000
+        volumes:
+          - ./web:/var/www/html/web
