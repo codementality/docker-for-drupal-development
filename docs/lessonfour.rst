@@ -36,7 +36,7 @@ This sets the root user password for our MySQL installation to `root`, and sets 
 3. Add MySQL startup command line options
 #########################################
 
-We can also add "command line" options when we start our MySQL container and create our database that consist of any options you would normally configure for your MySQL database instance.  In our case, we're going to set the "character set" and "collation" parameters for our database.
+We can also add "command line" options when we start our MySQL container and create our database that consists of any options you would normally configure for your MySQL database instance.  In our case, we're going to set the "character set" and "collation" parameters for our database.
 
 Add the following below the `environment` tag:
 
@@ -45,7 +45,7 @@ Add the following below the `environment` tag:
 
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci # The simple way to override the mariadb config.
 
-The `command`  key will pass any of the parameters listed to whatever executable application is launched by either the container's entrypoint script, or designated in the CMD instruction of the Dockefile that generated the image.  For MariaDB (and MySQL for that matter), that would be the `mysqld` binary that launches the database server.
+The `command`  key will pass any of the parameters listed to whatever executable application is launched by either the container's entrypoint script, or designated in the CMD instruction of the Dockerfile that generated the image.  For MariaDB (and MySQL for that matter), that would be the `mysqld` binary that launches the database server.
 
 4.  Add a volume declaration to the MySQL container
 ###################################################

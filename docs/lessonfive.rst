@@ -4,7 +4,7 @@ Lesson 5:  Customize PHP for Drupal
 1: Create a custom Docker image for PHP
 #######################################
 
-Let's take a look at the PHP Information that is displayed by our website's index.php file currently.
+Let's take a look at the PHP information that is displayed by our website's index.php file.
 
 If you scan down the page you'll notice that the "official" php container is missing some key php extensions that are needed to be able to run a Drupal site:
 
@@ -134,10 +134,10 @@ Create a file in your `docker/php` directory called `default.aliases.drushrc.php
       'uri' => isset($_SERVER['PHP_HOST_NAME']) ? $_SERVER['PHP_HOST_NAME'] : 'localhost:8000',
     ];
 
-5:  Add a php.ini base file, and an entrypoint shell script
-###########################################################
+5:  Add a `php.ini` base file, and an entrypoint shell script
+#############################################################
 
-Create a base php.ini file with some commonly adjusted settings in it, plus some we will need in our next lesson.  Create a file named `php.ini` in `docker/php` and include the following:
+Create a base `php.ini` file with some commonly adjusted settings in it, plus some we will need in our next lesson.  Create a file named `php.ini` in `docker/php` and include the following:
 
 .. code-block:: ini
    :linenos:
@@ -210,7 +210,7 @@ Add these two files to our Dockerfile by inserting the following lines, and spec
     CMD ["php-fpm"]
 
 
-5:  Modify the `docker-compose.yml` file to use our custom image definition
+6:  Modify the `docker-compose.yml` file to use our custom image definition
 ###########################################################################
 
 Open `docker-compose.yml`, and replace the following:
