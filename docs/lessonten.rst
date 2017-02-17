@@ -66,7 +66,7 @@ You'll be taken to a screen similar to this:
 
 .. image:: images/lesson10-step1-ill1.png
 
-If your Github account is linked to multiple organizations, you will see them listed on the left, below your name.  Select the organization where your Github project repo  is located.  Page down until you find the "dockerdrop" project.  Toggle the switch to turn it "green" wiht a checkbox.  This activates your project on Travis.
+If your Github account is linked to multiple organizations, you will see them listed on the left, below your name.  Select the organization where your Github project repo  is located.  Page down until you find the "dockerdrop" project.  Toggle the switch to turn it "green" with a checkbox.  This activates your project on Travis.
 
 .. image:: images/lesson10-step1-ill1.png
 

@@ -51,7 +51,7 @@ We're going to use the "Branch" option to set up our automated build rule.
 
 Select "Branch" from the "Type" field, change the Name field to "develop", and change the "Dockerfile location" to "/develop/php/", which is the location of the Dockerfile in our Github repo.  Leave the "Docker Tag Name" as "latest".
 
-Click the red "-" on the next line down to remove the second rule.  Your screens should look similar to this:
+Click the red "-" on the next line down to remove the second rule.  Your screen should look similar to this:
 
 .. image:: images/lesson9-step2-ill2.png
 
