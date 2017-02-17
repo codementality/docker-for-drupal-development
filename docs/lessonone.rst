@@ -1,10 +1,12 @@
 Lesson 1: Set up a web service
 ==============================
 
+Let's set up our project, called "dockerdrop", by creating a directory to house it named "dockerdrop".
+
 1: Create a Docker Compose yaml file
 ####################################
 
-Create a file called `docker-compose.yml` in the root of your project.
+Create a file called `docker-compose.yml` in the root of your project directory.
 
 This file will contain all information about the services, networks and volumes that will make up your development environment stack.  As we progress with this project, we will modify this file to modify services, define additional ones, add volumes and configure each volume and service to work together to build a viable development stack for our project.
 
@@ -13,7 +15,6 @@ This file will contain all information about the services, networks and volumes 
 Add the following to the top of your `docker-compose.yml` file
 
 .. code-block:: yaml
-   :linenos:
 
    version: '2'
 
@@ -33,7 +34,6 @@ Recently Docker published a `version '3'` version of the docker-compose file; ho
 Add a `services` key below the `version` key in your `docker-compose.yml` file:
 
 .. code-block:: yaml
-   :linenos:
    :emphasize-lines: 2
 
    version: '2'
@@ -49,7 +49,6 @@ This concept is referred to as `application containerization`, and is a operatin
 Next add a `web` service key below the `services` key, and define your web service as follows:
 
 .. code-block:: yaml
-   :linenos:
    :emphasize-lines: 3-6
 
    version: '2'
