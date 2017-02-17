@@ -43,7 +43,7 @@ Open `docker-compose.yml` in your favorite editor and add the following lines fo
 
 Note that we are pinning our PHP container to version `7.0-fpm`.
 
-The PHP images don't expose port 9000 by default, so we specify it ourselves in our configuration settings.
+The Official PHP images don't expose port 9000 by default, so we specify it ourselves in our configuration settings.
 
 The difference between `expose` and `ports` is that `expose` lets you expose some ports to the other containers only, and `port` lets you make them accessible to the host machine.  In this case we are exposing port 9000 on the `php` container to the stack's internal network.
 

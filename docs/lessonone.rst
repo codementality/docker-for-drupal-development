@@ -66,6 +66,8 @@ On the host operating system, we can control which ports our host operating syst
 
 Our configuration is mapping port `8000` on our host system to the internally exposed port `80` on our NginX container.
 
+Ports are mapped using the format `<host port>:<internal port>`.
+
 5.  Launch the services with Docker Compose
 ###########################################
 
