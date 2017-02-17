@@ -1,12 +1,12 @@
 Lesson 3:  Add PHP, customize NginX
 ===================================
 
-1: Add `web` folder with `index.php` to our project
+1: Add `www` folder with `index.php` to our project
 ###################################################
 
 Let's get our project ready to serve up a PHP application.
 
-Create a directory called `web` at the root of your project.  Inside that directory, create a file called `index.php` with the following contents:
+Create a directory called `www` at the root of your project.  Inside that directory, create a file called `index.php` with the following contents:
 
 .. code-block:: php
    :linenos:
@@ -38,7 +38,7 @@ Open `docker-compose.yml` in your favorite editor and add the following lines fo
         expose:
           - 9000
         volumes:
-          - ./web:/var/www/html/web
+          - .:/var/www/html
 
 
 Note that we are pinning our PHP container to version `7.0-fpm`.
@@ -51,7 +51,7 @@ We have also added a `volumes` key to our PHP container configuration, which we 
 
 Data volumes can be structured so that they are shared among containers, as well as configured to share directories with the host machine in certain circumstances, which is what we are doing here.  Similar to ports, shared volumes can be mapped in the following format:  `<host machine directory>:<container directory>`.
 
-What we're saying here is that the current directory (designated with (`.`) ) must be mounted inside the container as its /var/www/html directory. To simplify, it means that the content of the current directory on our host machine will be in sync with the `/var/www/html` directory in our containers. It also means that this content will be persistent even if we destroy the container, since it resides in a directory on the host machine.
+What we're saying here is that the current directory (designated with (`.`) ) will be mounted inside the container as its /var/www/html directory. To simplify, it means that the content of the current directory on our host machine will be in sync with the `/var/www/html` directory in our containers. It also means that this content will be persistent even if we destroy the container, since it resides in a directory on the host machine.
 
 More on that later.
 
@@ -106,6 +106,7 @@ Create a file in the `docker/nginx` directory called `default.conf`, and put the
         error_log  /var/log/nginx/error.log error;
 
         sendfile off;
+
 
         client_max_body_size MAX_BODY_SIZE;
 
@@ -222,9 +223,12 @@ Create a file called `Dockerfile` in the `docker/nginx` directory, and put the f
 
     # Add entrypoint script
     COPY docker-entrypoint.sh /usr/local/bin/
+    # Make sure it's executable
     RUN chmod a+x /usr/local/bin/docker-entrypoint.sh
 
-    ENTRYPOINT /usr/local/bin/docker-entrypoint.sh
+    ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+    CMD ["nginx","-g daemon off;"]
 
 What we are doing here is creating a custom Docker container that is based on the nginx:1.10.3 container.  We are tagging ourselves as the maintainer, and we specify that we want to copy our `default.conf` file over the one supplied by NginX.
 
@@ -235,14 +239,12 @@ That was easy enough.
 Now, to use the container we just defined, we need to modify our `docker-compose.yml` file, so open it in your editor and replace this line:
 
 .. code-block:: yaml
-   :linenos:
 
     image: nginx:1.10.3
 
 with this:
 
 .. code-block:: yaml
-   :linenos:
 
     build: ./docker/nginx/
 
@@ -251,10 +253,9 @@ We've basically just instructed docker-compose to build a web container from the
 Now, let's add some environment variables for our NginX container.  These values will be used by our entrypoint script, which we'll define in a moment.  Add the following to your `docker-compose.yml` file under the `web` service tag:
 
 .. code-block:: yaml
-   :linenos:
 
     environment:
-      NGINX_DOCROOT: www/web
+      NGINX_DOCROOT: www
       NGINX_SERVER_NAME: localhost
       # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
       NGINX_MAX_BODY_SIZE: 16m
@@ -262,7 +263,6 @@ Now, let's add some environment variables for our NginX container.  These values
 Now, we need to share the volume from our PHP container with our NginX container so that it knows what to serve up when it starts.  Modify your web service in your docker-compose file to read as follows:
 
 .. code-block:: yaml
-   :linenos:
 
     web:
       build: ./docker/nginx/
@@ -289,7 +289,8 @@ In the `docker/nginx` folder, create a file named `docker-entrypoint.sh` and add
 
     # Configure docroot.
     if [ -n "$NGINX_DOCROOT" ]; then
-        sed -i 's@root /var/www/html;@'"root /var/www/html/${NGINX_DOCROOT};"'@' /etc/nginx/conf.d/*.conf
+        sed -i 's@root /var/www/html;@'"root /var/www/html/${NGINX_DOCROOT};"'@' \
+         /etc/nginx/conf.d/*.conf
     fi
 
     # Ensure max_body_size is defined, and configure client_max_body_size
@@ -336,20 +337,21 @@ At this point your docker-compose.yml file should look as follows:
       web:
         build: ./docker/nginx/
         ports:
-          - "8000:80"
-        volumes_from:
-          - php
+         - "8000:80"
+        volumes:
+         - .:/var/www/html
         depends_on:
-          - php
+         - php
         environment:
-          NGINX_DOCROOT: web
-          NGINX_SERVER_NAME: localhost
-          # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
-          NGINX_MAX_BODY_SIZE: 16m
+         #Make this the same for PHP
+         NGINX_DOCROOT: www
+         NGINX_SERVER_NAME: localhost
+         # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
+         NGINX_MAX_BODY_SIZE: 20m
 
       php:
         image: php:7.0-fpm
         expose:
-          - 9000
+          - "9000"
         volumes:
-          - ./web:/var/www/html/web
+          - .:/var/www/html
