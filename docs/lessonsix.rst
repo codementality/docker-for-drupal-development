@@ -63,8 +63,8 @@ To add a Selenium container to our stack, edit the `docker-compose.yml` file and
 .. code-block:: yaml
    :linenos:
 
-  selenium:
-    image: selenium/standalone-firefox:2.53.0
+    selenium:
+      image: selenium/standalone-firefox:2.53.0
 
 The selenium container exposes port 4444 by default.  We will need this information when we configure Behat to use Selenium for testing.
 
