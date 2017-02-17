@@ -52,12 +52,11 @@ The `command`  key will pass any of the parameters listed to whatever executable
 
 Just as we did with our PHP container, we're going to add some data volumes to our MySQL container.
 
-The first volume we're going to add will be a local data volume to store our MySQL database.  Normally when you destroy a container with `docker-compose down`, the container and all of its contents are destroyed.  This is probably not the desired behavior if you're working on a content management system; we want our data to persist even if we spin our application stack down.
+The first volume we're going to add will be a local data volume to store our MySQL database.  Normally when you destroy a container with `docker-compose down`, the container and all of its contents are destroyed.  This is probably not the desired behavior if you're working on a content management system; we want our database data to persist even if we spin our application stack down.
 
 We can do this by declaring a data volume that we mount in the physical location where MySQL normally creates its MySQL databases, which in this case is `/var/lib/mysql`.  Add the following right below the `command` tag:
 
 .. code-block:: yaml
-   :linenos:
 
     volumes:
       - mysql-data:/var/lib/mysql
@@ -70,7 +69,6 @@ Now this maps a local data volume named `mysql-data` (which we haven't created y
 Now we need to add a local data volume to our application stack for use by MySQL.  Add a new top level tag called `volumes` to your `docker-compose.yml`, below the `services` tag and all of the declared services, and define your data volume as follows:
 
 .. code-block:: yaml
-   :linenos:
 
     volumes:
       mysql-data:
@@ -90,7 +88,6 @@ We can use this information to map a shared data volume where we can place a see
 Create a directory in your project called `data`, and add the following to your `volumes` tag under your `db` service:
 
 .. code-block:: yaml
-   :linenos:
 
       - ./data:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
 
@@ -107,7 +104,7 @@ Wait about 20 seconds, and issue the command:
 
     docker-compose ps
 
-You should see something similar to the following:
+You should see something similar to the following::
 
           Name                    Command               State               Ports
     -----------------------------------------------------------------------------------------
@@ -138,7 +135,7 @@ Your docker compose file should look as follows:
         expose:
           - 9000
         volumes:
-          - ./web:/var/www/html/web
+          - .:/var/www/html
 
       db:
         image: mariadb:10.1.19
