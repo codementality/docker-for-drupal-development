@@ -6,7 +6,7 @@ Lesson 3:  Add PHP, customize NginX
 
 Let's get our project ready to serve up a PHP application.
 
-Create a directory called `web` at the root of your project.  Inside that directory, create a filed called `index.php` with the following contents:
+Create a directory called `web` at the root of your project.  Inside that directory, create a file called `index.php` with the following contents:
 
 .. code-block:: php
    :linenos:
@@ -51,7 +51,7 @@ We have also added a `volumes` key to our PHP container configuration, which we 
 
 Data volumes can be structured so that they are shared among containers, as well as configured to share directories with the host machine in certain circumstances, which is what we are doing here.  Similar to ports, shared volumes can be mapped in the following format:  `<host machine directory>:<container directory>`.
 
-What we're saying here is that the current directory (designated with `.` ) must be mounted inside the container as its /var/www/html directory. To simplify, it means that the content of the current directory on our host machine will be in sync with the containers. It also means that this content will be persistent even if we destroy the container.
+What we're saying here is that the current directory (designated with (`.`) ) must be mounted inside the container as its /var/www/html directory. To simplify, it means that the content of the current directory on our host machine will be in sync with the `/var/www/html` directory in our containers. It also means that this content will be persistent even if we destroy the container, since it resides in a directory on the host machine.
 
 More on that later.
 
@@ -185,13 +185,15 @@ Create a file in the `docker/nginx` directory called `default.conf`, and put the
         }
     }
 
+Save this file.
+
 Note the highlighted line above, number 87:
 
     fastcgi_pass php:9000;
 
 This defines the proxy PHP service for NginX as "php:9000", which means that NginX will pass all HTTP requests to the service identified with the domain name "php", to port 9000 on that service.
 
-When Docker Compose passes statements to Docker to build this stack, Docker will set up a private network for the running containers in the stack, will set up a DNS service to map each service defined in the `docker-compose.yml` file to an IP address on that network, and each container on that network will be identified by the service tag from the `docker-compose.yml` file use to define that container.
+When Docker Compose passes statements to Docker to build this stack, Docker will set up a private network for the running containers in the stack, will set up a DNS service to map each service defined in the `docker-compose.yml` file to an IP address on that network, and each container on that network will be identified by the service tag from the `docker-compose.yml` file used to define that container.
 
 NginX, as a running container on the Docker network, will look for a domain name of "php" in the DNS services available to it, starting with the private network set up by Docker, will resolve that domain name to its associated IP address, and will communicate with that service through the designated port.  NginX doesn't know or care that PHP is running in a docker container.  If the domain alias is not found in the internal network, Docker will next look to Google DNS, or the next level of DNS available on the network.
 
@@ -199,14 +201,13 @@ NginX, as a running container on the Docker network, will look for a domain name
 
     Docker does not recognize DNS entries in the host's `/etc/host` file when resolving domain names and aliases.
 
-Save this file.
 
 4. Create a custom NginX container
 ##################################
 
 We're going to create a custom NginX container image to replace the image we're currently using, and modify the NginX container to load the newly added config file
 
-By default, the "official" NginX container uses the default configuration file that get installed when NginX is installed.  We can, however, create our own container that loads the configuration file we just created.
+By default, the "official" NginX container uses the default configuration file that gets installed when NginX is installed.  We can, however, create our own container that loads the configuration file we just created.
 
 Create a file called `Dockerfile` in the `docker/nginx` directory, and put the following in it:
 
@@ -307,7 +308,7 @@ In the `docker/nginx` folder, create a file named `docker-entrypoint.sh` and add
 
 Let's take a look at the entrypoint script for a minute.
 
-Notice the four "if" statements...what we are doing here is taking the environment variables stored in `$NGINX_DOCROOT`, `$NGINX_MAX_BODY_SIZE`, and `$NGINX_SERVER_NAME`, and using them if they exist to replace values in our `default.conf` file.
+Notice the three "if" statements...what we are doing here is taking the environment variables stored in `$NGINX_DOCROOT`, `$NGINX_MAX_BODY_SIZE`, and `$NGINX_SERVER_NAME`, and using them if they exist to replace values in our `default.conf` file.
 
 These correspond with the `environment` variables in our `docker-compose.yml` file.
 

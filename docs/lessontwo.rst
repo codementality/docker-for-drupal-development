@@ -26,14 +26,14 @@ Edit the line from Step 1 to read as follows:
 
 .. code-block:: yaml
    :linenos:
-       :emphasize-lines: 4
+   :emphasize-lines: 4
 
-           version: '2'
-           services:
-             web:
-               image: nginx: 1.10.3
-               ports:
-                 - 8000:80
+   version: '2'
+   services:
+     web:
+       image: nginx: 1.10.3
+       ports:
+         - 8000:80
 
 This "pins" your stack build to use this specific version of the official NginX container.  The available versions can be seen on Docker Hub, at `https://hub.docker.com/r/library/nginx/tags/`.
 
@@ -62,13 +62,13 @@ Notice the 4th line of the output above::
 
     386a066cd84a: Already exists
 
-When Docker downloads an image, that image is comprised of several "layers".  Each layer is comprised of a set of instructions in the Dockerfile that generate the components that make up a particular image.
+When Docker downloads an image, that image is comprised of several "layers".  Each layer is comprised of a set of instructions in the Dockerfile that generates the components that make up a particular image.
 
-Each "layer" is stored on Docker Hub with a hash.  Whenever possible Docker will "reuse" layers across multiple containers.
+Each "layer" is stored on Docker Hub with a hash.  Whenever possible, Docker will "reuse" layers across multiple containers.
 
 In our case, both the "latest" version and version "1.10.3" start with the official "debian/jessie" Docker image, so naturally there will be some commonality between the two.  Since we had started with the "latest" image in our build, Docker had already downloaded the layers for the `nginx:latest` image and cached them locally.
 
-There is one layer that is common between `nginx:latest` and `nginx:1.10.3`, which Docker identified via its hash, so Docker doesn't download that layer again; it simply downloads the ones where there are differences.
+There is one layer that is common between `nginx:latest` and `nginx:1.10.3`, which Docker identified via its hash, so Docker doesn't download that layer again; it simply downloads the ones where there are differences, and locally constructs the "nginx:1.10.3" image from those layers.
 
 4:  Delete the `nginx:latest` image from your cache
 ###################################################
