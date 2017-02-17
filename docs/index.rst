@@ -12,6 +12,7 @@ This documentation serves as reference material to accompany the training class 
    :maxdepth: 2
    :caption: Contents
 
+   introduction
    prerequisites
    lessonone
    lessontwo
