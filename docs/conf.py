@@ -61,8 +61,9 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Docker for Development with Drupal'
-copyright = u'2017, Lisa Ridley'
-author = u'Lisa Ridley'
+copyright = u'2017, Lisa Ridley, Solutions Architect, Promet Source'
+author = u'Lisa Ridley, Solutions Architect, Promet Source'
+
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -238,7 +239,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'DockerforDevelopmentwithDrupal.tex', u'Docker for Development with Drupal Documentation',
-     u'Lisa Ridley', 'manual'),
+     u'Lisa Ridley, Solutions Architect, Promet Source', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -282,7 +283,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'DockerforDevelopmentwithDrupal', u'Docker for Development with Drupal Documentation',
-     author, 'Lisa Ridley', 'Training Materials for Docker for Development with Drupal.',
+     author, 'Lisa Ridley, Solutions Architect, Promet Source', 'Training Materials for Docker for Development with Drupal.',
      'Miscellaneous'),
 ]
 
