@@ -318,6 +318,8 @@ These correspond with the `environment` variables in our `docker-compose.yml` fi
 
 Issue the following commands:
 
+.. code-block:: bash
+
     docker-compose down
     docker-compose up -d
 
