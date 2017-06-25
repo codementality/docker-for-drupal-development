@@ -239,7 +239,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'DockerforDevelopmentwithDrupal.tex', u'Docker for Development with Drupal Documentation',
-     u'Lisa Ridley, 'manual'),
+     u'Lisa Ridley', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
