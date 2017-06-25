@@ -16,7 +16,7 @@ Add the following to the top of your `docker-compose.yml` file
 
 .. code-block:: yaml
 
-   version: '2'
+   version: '3'
 
 This key designates which Docker Compose file format version that our `.yml` file is using.  Backwards compatibility has been maintained in docker-compose currently so that earlier versions will work with the current version of Docker Compose, but each version incorporates new features of Docker that weren't available in previous versions.
 
@@ -24,9 +24,8 @@ While backwards compatibility with the file format has been maintained, not all 
 
 If you see a `docker-compose.yml` file without a version key, it is a `version 1` docker-compose file.  This version is considered deprecated.
 
-`Version 2` is the current recommended format.  It requires that you are running Docker Engine version 1.10.0 or greater.  To designate a `docker-compose.yml` file as compliant with `Version 2`, you must explicitely include this line in your `.yml` file.
+`Version 3` is the current recommended format.  It requires that you are running Docker Engine version 1.13.0 or greater.  To designate a `docker-compose.yml` file as compliant with `Version 3`, you must explicitly include this line in your `.yml` file.
 
-Recently Docker published a `version '3'` version of the docker-compose file; however since it is new, and not yet supported on TravisCI, we will stick with Version 2 for this workshop.
 
 3:  Add a `services` key
 ########################
@@ -36,7 +35,7 @@ Add a `services` key below the `version` key in your `docker-compose.yml` file:
 .. code-block:: yaml
    :emphasize-lines: 2
 
-   version: '2'
+   version: '3'
    services:
 
 A Docker service is an instance of a Docker image that is used in your stack for a specific purpose.  Each service will provide a specific, isolated application in the overall configuration, and will be granted permission through configuration settings included in your `docker-compose.yml` file to interact with other service containers in the stack.
@@ -51,7 +50,7 @@ Next add a `web` service key below the `services` key, and define your web servi
 .. code-block:: yaml
    :emphasize-lines: 3-6
 
-   version: '2'
+   version: '3'
    services:
      web:
        image: nginx:latest
@@ -93,7 +92,7 @@ At this point, your `docker-compose.yml` should look like the following:
 .. code-block:: yaml
    :linenos:
 
-   version: '2'
+   version: '3'
    services:
      web:
        image: nginx:latest
