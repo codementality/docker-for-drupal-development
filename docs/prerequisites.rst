@@ -12,7 +12,7 @@ Linux Users
 ###########
 
 
-* Install the Docker Engine:  https://docs.docker.com/engine/installation/
+* Install the Community Edition of Docker Engine:  https://docs.docker.com/engine/installation/
 
 .. Note::
    * Docker only works on a 64-bit Linux installation.
@@ -27,7 +27,7 @@ See the Installation instructions for your flavor of Linux at the link above.
 Mac OS X Users
 ##############
 
-* Install Docker for Mac:  https://docs.docker.com/engine/installation/mac/
+* Install Docker for Mac:  https://docs.docker.com/docker-for-mac/
 
 .. Note::
    * Mac must be a 2010 or newer model, with Intel’s hardware support for memory management unit (MMU) virtualization; i.e., Extended Page Tables (EPT) macOS 10.10.3 Yosemite or newer
@@ -38,7 +38,7 @@ Mac OS X Users
 Windows 10 Users
 ################
 
-* Install Docker for Windows:  https://docs.docker.com/engine/installation/windows/
+* Install Docker for Windows:  https://docs.docker.com/docker-for-windows/
 * If you're running an up to date version of Windows 10 (you have the Anniversary Update installed), install the Linux Bash Shell:  http://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/
 * If "make" is not available in the Linux Bash Shell, install it with `sudo apt-get install make` or `sudo apt-get install build-essential`
 
