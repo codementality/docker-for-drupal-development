@@ -14,9 +14,9 @@ To add Mailhog to your application stack, open your `docker-compose.yml` file an
    :linenos:
 
     mailhog:
-    image: mailhog/mailhog:latest
-    ports:
-      - "8002:8025"
+      image: mailhog/mailhog:latest
+      ports:
+        - "8002:8025"
 
 This will add a MailHog container to your application stack, and will make the MailHog GUI available on port 8002.
 
@@ -64,7 +64,7 @@ To add a Selenium container to our stack, edit the `docker-compose.yml` file and
    :linenos:
 
     selenium:
-      image: selenium/standalone-firefox:2.53.0
+      image: selenium/standalone-firefox:3.4.0
 
 The selenium container exposes port 4444 by default.  We will need this information when we configure Behat to use Selenium for testing.
 
@@ -77,22 +77,22 @@ Now, our `docker-compose.yml` file looks like this:
 .. code-block:: yaml
    :linenos:
 
-    version: '2'
+    version: '3'
+
     services:
       web:
         build: ./docker/nginx/
         ports:
-          - "8000:80"
+          - 8000:80
         volumes:
           - .:/var/www/html
         depends_on:
           - php
         environment:
-          #Make this the same for PHP
           NGINX_DOCROOT: www
           NGINX_SERVER_NAME: localhost
-          # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
-          NGINX_MAX_BODY_SIZE: 20m
+           Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
+          NGINX_MAX_BODY_SIZE: 16m
 
       php:
         build: ./docker/php/
@@ -100,14 +100,12 @@ Now, our `docker-compose.yml` file looks like this:
           - 9000
         volumes:
           - .:/var/www/html
-        depends_on:
-          - db
         environment:
           PHP_MEMORY_LIMIT: 256M
           PHP_MAX_EXECUTION_TIME: 120
           # If you set this,make sure you also set it for Nginx
-          PHP_POST_MAX_SIZE: 20M
-          PHP_UPLOAD_MAX_FILESIZE: 20M
+          PHP_POST_MAX_SIZE: 16M
+          PHP_UPLOAD_MAX_FILESIZE: 16M
           # used by Drush Alias; if not specified Drush defaults to dev
           PHP_SITE_NAME: dev
           # used by Drush alias; if not specified Drush defaults to localhost:8000
@@ -116,7 +114,7 @@ Now, our `docker-compose.yml` file looks like this:
           PHP_DOCROOT: www
 
       db:
-        image: mariadb:10.1.21
+        image: mariadb:10.3.0
         environment:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: drupal
@@ -133,7 +131,7 @@ Now, our `docker-compose.yml` file looks like this:
           - "8002:8025"
 
       selenium:
-        image: selenium/standalone-firefox:2.53.0
+        image: selenium/standalone-firefox:3.4.0
 
     volumes:
       mysql-data:
