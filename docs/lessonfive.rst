@@ -273,6 +273,8 @@ Your `docker-compose.yml` file should look as follows:
         build: ./docker/nginx/
         ports:
           - 8000:80
+        volumes:
+          - .:/var/www/html
         depends_on:
           - php
         environment:
