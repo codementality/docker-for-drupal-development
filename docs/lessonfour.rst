@@ -125,8 +125,6 @@ Your docker compose file should look as follows:
         build: ./docker/nginx/
         ports:
           - "8000:80"
-        volumes_from:
-          - php
         depends_on:
           - php
 

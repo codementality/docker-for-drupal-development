@@ -268,8 +268,8 @@ Now, we need to share the volume from our PHP container with our NginX container
       build: ./docker/nginx/
       ports:
         - "8000:80"
-      volumes_from:
-        - php
+      volumes:
+        - .:/var/www/html
       depends_on:
         - php
 

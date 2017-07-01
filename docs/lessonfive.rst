@@ -273,6 +273,8 @@ Your `docker-compose.yml` file should look as follows:
         build: ./docker/nginx/
         ports:
           - 8000:80
+        depends_on:
+          - php
         environment:
           NGINX_DOCROOT: www
           NGINX_SERVER_NAME: localhost
