@@ -24,12 +24,12 @@ Open `docker-compose.yml` in your favorite editor and add the following lines fo
    :linenos:
    :emphasize-lines: 10-15
 
-   version: '2'
+   version: '3'
 
    services:
 
      web:
-       image: nginx:latest
+       image: nginx:1.13.0
        ports:
          - 8000:80
 
@@ -62,9 +62,9 @@ Now that we're adding another container to our stack, our two containers need to
 
 Create a file in the `docker/nginx` directory called `default.conf`, and put the following in it:
 
-.. code-block:: javascript
+.. code-block:: yaml
    :linenos:
-   :emphasize-lines: 87
+   :emphasize-lines: 88
 
     # Let's redirect https requests to http; you'll want to modify this if you
     # need to test over https
@@ -188,7 +188,7 @@ Create a file in the `docker/nginx` directory called `default.conf`, and put the
 
 Save this file.
 
-Note the highlighted line above, number 87:
+Note the highlighted line above, number 88:
 
     fastcgi_pass php:9000;
 
@@ -215,7 +215,7 @@ Create a file called `Dockerfile` in the `docker/nginx` directory, and put the f
 .. code-block:: yaml
    :linenos:
 
-    FROM nginx:1.10.3
+    FROM nginx:1.13.0
 
     MAINTAINER Lisa Ridley "lhridley@gmail.com"
 
@@ -230,7 +230,7 @@ Create a file called `Dockerfile` in the `docker/nginx` directory, and put the f
 
     CMD ["nginx","-g daemon off;"]
 
-What we are doing here is creating a custom Docker container that is based on the nginx:1.10.3 container.  We are tagging ourselves as the maintainer, and we specify that we want to copy our `default.conf` file over the one supplied by NginX.
+What we are doing here is creating a custom Docker container that is based on the nginx:1.13.0 container.  We are tagging ourselves as the maintainer, and we specify that we want to copy our `default.conf` file over the one supplied by NginX.
 
 We are also adding a custom entrypoint script, which we'll create in a minute.
 
@@ -240,7 +240,7 @@ Now, to use the container we just defined, we need to modify our `docker-compose
 
 .. code-block:: yaml
 
-    image: nginx:1.10.3
+    image: nginx:1.13.0
 
 with this:
 
@@ -332,7 +332,7 @@ At this point your docker-compose.yml file should look as follows:
 .. code-block:: yaml
    :linenos:
 
-    version: '2'
+    version: '3'
 
     services:
 
