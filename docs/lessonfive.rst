@@ -87,7 +87,7 @@ Well, we are building a container to work with Drupal, so naturally we need Drus
     ENV COMPOSER_HOME /composer
     ENV PATH /composer/vendor/bin:$PATH
     ENV COMPOSER_ALLOW_SUPERUSER 1
-    ENV COMPOSER_VERSION 1.2.3
+    ENV COMPOSER_VERSION 1.3.0
 
     # Setup the Composer installer
     RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
@@ -240,14 +240,12 @@ with:
         - 9000
       volumes:
         - .:/var/www/html
-      depends_on:
-        - db
       environment:
         PHP_MEMORY_LIMIT: 256M
         PHP_MAX_EXECUTION_TIME: 120
         # If you set this,make sure you also set it for Nginx
-        PHP_POST_MAX_SIZE: 20M
-        PHP_UPLOAD_MAX_FILESIZE: 20M
+        PHP_POST_MAX_SIZE: 16M
+        PHP_UPLOAD_MAX_FILESIZE: 16M
         # used by Drush Alias; if not specified Drush defaults to dev
         PHP_SITE_NAME: dev
         # used by Drush alias; if not specified Drush defaults to localhost:8000
@@ -268,22 +266,18 @@ Your `docker-compose.yml` file should look as follows:
 .. code-block:: yaml
    :linenos:
 
-    version: '2'
+    version: '3'
+
     services:
       web:
         build: ./docker/nginx/
         ports:
-          - "8000:80"
-        volumes:
-          - .:/var/www/html
-        depends_on:
-          - php
+          - 8000:80
         environment:
-          #Make this the same for PHP
           NGINX_DOCROOT: www
           NGINX_SERVER_NAME: localhost
-          # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
-          NGINX_MAX_BODY_SIZE: 20m
+           Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
+          NGINX_MAX_BODY_SIZE: 16m
 
       php:
         build: ./docker/php/
@@ -291,14 +285,12 @@ Your `docker-compose.yml` file should look as follows:
           - 9000
         volumes:
           - .:/var/www/html
-        depends_on:
-          - db
         environment:
           PHP_MEMORY_LIMIT: 256M
           PHP_MAX_EXECUTION_TIME: 120
           # If you set this,make sure you also set it for Nginx
-          PHP_POST_MAX_SIZE: 20M
-          PHP_UPLOAD_MAX_FILESIZE: 20M
+          PHP_POST_MAX_SIZE: 16M
+          PHP_UPLOAD_MAX_FILESIZE: 16M
           # used by Drush Alias; if not specified Drush defaults to dev
           PHP_SITE_NAME: dev
           # used by Drush alias; if not specified Drush defaults to localhost:8000
@@ -307,7 +299,7 @@ Your `docker-compose.yml` file should look as follows:
           PHP_DOCROOT: www
 
       db:
-        image: mariadb:10.1.21
+        image: mariadb:10.3.0
         environment:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: drupal
@@ -332,18 +324,20 @@ And your php `Dockerfile should look like:
     MAINTAINER Lisa Ridley "lhridley@gmail.com"
 
     RUN apt-get update && apt-get install -y \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libmcrypt-dev \
-        libpng12-dev \
-        libbz2-dev \
-        unzip \
-        zip \
-        mariadb-client \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libmcrypt-dev \
+    libpng12-dev \
+    unzip \
+    zip \
+    mariadb-client \
     && docker-php-ext-install -j$(nproc) iconv mcrypt \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install pdo_mysql zip opcache bz2
+    && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install zip \
+    && docker-php-ext-install opcache \
+    && docker-php-ext-install zip
 
     # Register the COMPOSER_HOME environment variable
     # Add global binary directory to PATH and make sure to re-export it
@@ -352,21 +346,16 @@ And your php `Dockerfile should look like:
     ENV COMPOSER_HOME /composer
     ENV PATH /composer/vendor/bin:$PATH
     ENV COMPOSER_ALLOW_SUPERUSER 1
-    ENV COMPOSER_VERSION 1.2.3
+    ENV COMPOSER_VERSION 1.3.0
 
     # Setup the Composer installer
     RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
         && curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig \
-        && php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) \
-        !== trim(file_get_contents('/tmp/composer-setup.sig'))) \
-        { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . \
-        PHP_EOL; exit(1); }" \
+        && php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }" \
 
     # Install Composer
-        && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin \
-        --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \
-    # Install Prestissimo plugin for Composer -- allows for parallel processing of
-    # packages during install / update
+        && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \
+    # Install Prestissimo plugin for Composer -- allows for parallel processing of packages during install / update
         && composer global require "hirak/prestissimo:^0.3" \
         && chown -Rf www-data:www-data /composer \
         && mkdir /var/www/docroot \
@@ -389,7 +378,6 @@ And your php `Dockerfile should look like:
         && mkdir -p /opt/go \
         && export GOPATH=/opt/go \
         && go get github.com/mailhog/mhsendmail
-
     # Add php.ini base file
     COPY php.ini /usr/local/etc/php/conf.d/php.ini
 
