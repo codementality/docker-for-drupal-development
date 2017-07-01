@@ -10,10 +10,10 @@ Let's add a new service to our application stack.  Open `docker-compose.yml` in 
    :linenos:
 
    db:
-     image: mariadb:10.1.21
+     image: mariadb:10.3.0
 
 
-What we've done is add a MariaDB container to our application stack, and pinned it to version 10.1.21.
+What we've done is add a MariaDB container to our application stack, and pinned it to version 10.3.0.
 
 2. Add database environment variables
 #####################################
@@ -119,7 +119,7 @@ Your docker compose file should look as follows:
 .. code-block:: yaml
    :linenos:
 
-    version: '2'
+    version: '3'
     services:
       web:
         build: ./docker/nginx/
@@ -138,7 +138,7 @@ Your docker compose file should look as follows:
           - .:/var/www/html
 
       db:
-        image: mariadb:10.1.19
+        image: mariadb:10.3.0
         environment:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: drupal
