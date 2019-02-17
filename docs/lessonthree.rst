@@ -344,15 +344,14 @@ At this point your docker-compose.yml file should look as follows:
     version: '3'
 
     services:
-
       web:
         build: ./docker/nginx/
         ports:
-         - "8000:80"
+          - "8000:80"
         volumes:
-         - .:/var/www/html
+          - .:/var/www/html
         depends_on:
-         - php
+          - php
         environment:
          #Make this the same for PHP
          NGINX_DOCROOT: web
