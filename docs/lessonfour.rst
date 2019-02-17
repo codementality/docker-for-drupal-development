@@ -10,10 +10,10 @@ Let's add a new service to our application stack.  Open `docker-compose.yml` in 
    :linenos:
 
    db:
-     image: mariadb:10.1.21
+     image: mariadb:10.4.2
 
 
-What we've done is add a MariaDB container to our application stack, and pinned it to version 10.1.21.
+What we've done is add a MariaDB container to our application stack, and pinned it to version 10.4.2.
 
 2. Add database environment variables
 #####################################
@@ -78,8 +78,10 @@ Notice that the volume name, `mysql-data`, is the same as the volume we mapped f
 
 When we spin down our application stack with `docker-compose down`, our MySQL container will be destroyed, but our data volume will persist until we physically destroy it.  The next time we spin up our application stack with `docker-compose up -d`, Docker will check to see if the `mysql-data` volume exists; if it does, Docker will mount it to our MySQL container; if it doesn't Docker will create a new data volume to mount inside our MySQL container.
 
-6.  Add a shared data volume for a seed database
+6.  Shared data volume for a seed database
 ################################################
+
+The official Docker images for MariaDB (and MySQL) also provide a way to pre-load a database when you start a container from an official images, or an image derived from an official image.
 
 When a container is started for the first time, a new database with the specified name will be created and initialized with the provided configuration variables. Furthermore, it will execute files with extensions `.sh`, `.sql` and `.sql.gz` that are found in the internal path `/docker-entrypoint-initdb.d`.
 
@@ -93,6 +95,8 @@ Create a directory in your project called `data`, and add the following to your 
 
 When our MySQL container is started, Docker will mount our host directory, `data`, at the physical location `docker-entrypoint-initdb.d` inside our MySQL container.  The official MySQL (and MariaDB) containers have a startup script that executes every time a new container instance is created; the startup script will import any `.sql` or `.sql.gz` files it finds in `db` into the database we created, `drupal`.
 
+While we won't be using a seed database in this tutorial, it is worth mentioning for those times when you start active development on your own projects that this is an option.
+
 7.  Start up your application stack
 ###################################
 
@@ -100,7 +104,7 @@ Issue the command:
 
     docker-compose up -d
 
-Wait about 20 seconds, and issue the command:
+Wait until the MariaDB container image downloads and you see two "Recreating dockerdrop.........done" statements (about 15-20 seconds), and issue the command:
 
     docker-compose ps
 
@@ -119,26 +123,33 @@ Your docker compose file should look as follows:
 .. code-block:: yaml
    :linenos:
 
-    version: '2'
+    version: '3'
+
     services:
       web:
         build: ./docker/nginx/
         ports:
           - "8000:80"
-        volumes_from:
-          - php
+        volumes:
+          - .:/var/www/html
         depends_on:
           - php
+        environment:
+         #Make this the same for PHP
+         NGINX_DOCROOT: web
+         NGINX_SERVER_NAME: localhost
+         # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
+         NGINX_MAX_BODY_SIZE: 20m
 
       php:
-        image: php:7.0-fpm
+        image: php:7.2-fpm
         expose:
-          - 9000
+          - "9000"
         volumes:
           - .:/var/www/html
 
       db:
-        image: mariadb:10.1.19
+        image: mariadb:10.4.2
         environment:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: drupal
