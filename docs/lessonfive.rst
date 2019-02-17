@@ -11,11 +11,12 @@ If you scan down the page you'll notice that the "official" php container is mis
 - A Database extension for MySQL
 - an Image Library extension (GD)
 - Opcode Cache (opcache)
+- Mbstring (for multilingual and UTF-8 / UCS-2 encoding)
 
 I would recommend that you also install:
 
-- Mcrypt (an encryption library)
-- Iconv extension (Human Language and Character Encoding Support), needed for some mime support, UTF8, latin character support etc.
+- Mcrypt (an encryption library, which must be installed using PECL)
+- Iconv extension (Human Language and Character Encoding Support), needed for some mime support, UTF8, UCS-2, latin character support etc.
 
 Some Drupal security extensions will leverage Mcrypt if it's available.
 
@@ -24,6 +25,10 @@ Drush uses compression / decompression libraries for some functions, so we'll in
 - Zip
 - Unzip
 - Zip PHP extension
+
+Drupal 8 and the Composer Project for Drupal both use yaml files, so we'll also install:
+
+-PHP Yaml
 
 Finally, since our MySQL container is separate from the container where PHP is located, you will need a MySQL client application for some of the Drush sql commands, so we'll install:
 
@@ -38,11 +43,13 @@ Inside that directory create a `Dockerfile`, and add the following:
 .. code-block:: yaml
    :linenos:
 
-    FROM php:7.0-fpm
+    FROM php:7.2-fpm
 
-    MAINTAINER Lisa Ridley "lhridley@gmail.com"
+    MAINTAINER Lisa Ridley "lisa@codementality.com"
 
 We're going to base our Dockerfile on the same container we are using to build our application stack currently.
+
+While we are at it, go ahead and create the directory `docker/php/conf.d` as well, we'll be using that later.
 
 2:  Add code to add the PHP extensions
 ######################################
@@ -54,90 +61,79 @@ Let's install the dependencies for our extensions, and install the extensions th
 .. code-block:: yaml
    :linenos:
 
-    RUN apt-get update && apt-get install -y \
+    RUN apt-get update && apt-get install -yq \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libmcrypt-dev \
-        libpng12-dev \
+        libpng-dev \
+        libyaml-dev \
         unzip \
         zip \
         mariadb-client \
-        && docker-php-ext-install -j$(nproc) iconv mcrypt \
-        && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+        && rm -rf /var/lib/apt/lists/* \
+        && apt autoremove -y \
+        && docker-php-ext-install -j$(nproc) iconv \
+        && docker-php-ext-configure gd --with-png-dir=/usr --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
         && docker-php-ext-install -j$(nproc) gd \
         && docker-php-ext-install pdo_mysql \
         && docker-php-ext-install zip \
         && docker-php-ext-install opcache \
-        && docker-php-ext-install zip
+        && docker-php-ext-install zip \
+        && docker-php-ext-install mbstring \
+        && pecl install mcrypt-1.0.1 yaml \
+        && docker-php-ext-enable mcrypt yaml \
 
 If you've ever had to install packages on a Linux server or a virtual machine, these commands may look familiar to you.  The RUN keyword is a Docker command that is used to execute commands available from binaries installed in the base container, using the "shell" application (`/bin/sh`).
 
-3:  Add Composer, Drush and a Drush Alias file
-##############################################
+Since we are installing the `opcache` extension, we'll need to configure it, so after the above lines, as part of the `RUN` directive, include the following::
 
-Well, we are building a container to work with Drupal, so naturally we need Drush installed.  For the container to work with Drupal 8, we also need Composer.  Let's add those two applications to our container.  Add the following lines below the one already added to our `Dockerfile`:
+      # set recommended PHP.ini settings
+      # see https://secure.php.net/manual/en/opcache.installation.php
+          && { \
+              echo 'opcache.memory_consumption=128'; \
+              echo 'opcache.interned_strings_buffer=8'; \
+              echo 'opcache.max_accelerated_files=4000'; \
+              echo 'opcache.revalidate_freq=0'; \
+              echo 'opcache.fast_shutdown=1'; \
+              echo 'opcache.enable_cli=1'; \
+          } > /usr/local/etc/php/conf.d/opcache-recommended.ini
+      #
+
+
+3:  Add instructions to copy any php config files, and add Composer
+###################################################################
+
+Well, we are building a container to work with Drupal 8.  For the container to work with Drupal 8, we need Composer.  Add the following lines below the one already added to our `Dockerfile`:
 
 .. code-block:: yaml
    :linenos:
 
-    # Register the COMPOSER_HOME environment variable
-    # Add global binary directory to PATH and make sure to re-export it
-    # Allow Composer to be run as root
-    # Composer version
-    ENV COMPOSER_HOME /composer
-    ENV PATH /composer/vendor/bin:$PATH
-    ENV COMPOSER_ALLOW_SUPERUSER 1
-    ENV COMPOSER_VERSION 1.2.3
-
-    # Setup the Composer installer
-    RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
-        && curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig \
-        && php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }" \
-
-    # Install Composer
-        && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \
+    # Copy PHP configs.
+    COPY conf.d/* /usr/local/etc/php/conf.d/
+    RUN chmod 644 /usr/local/etc/php/conf.d/* \
+        && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+        && composer --version \
     # Install Prestissimo plugin for Composer -- allows for parallel processing of packages during install / update
-        && composer global require "hirak/prestissimo:^0.3" \
-        && chown -Rf www-data:www-data /composer \
-        && mkdir /var/www/docroot \
-        && chown -Rf www-data:www-data /var/www \
-    # Install Drush
-        && mkdir /usr/local/drush \
-        && cd /usr/local/drush \
-        && composer init --require=drush/drush:8.* -n \
-        && composer config bin-dir /usr/local/bin \
-        && composer install \
-        && drush init -y \
-    # Set up default location for drush alias files
-        && mkdir -p /etc/drush/site-aliases
+        && composer global require "hirak/prestissimo:^0.3"
 
-    # Copy drush alias file into image
-    COPY default.aliases.drushrc.php /etc/drush/site-aliases/
+4.  Install MHSendmail support
+##############################
 
-    # Install Mailhog Sendmail support:
+We will be using an application calle "MHSendmail" to capture outgoing mail from our application, which will redirect mail to an application called "MailHog", which we'll include in our stack in a bit.  To install MHSendmail and configure PHP to use MHSendMail for outgoing mail routing, include the following in your Dockerfile below the lines abovw:
+
     RUN apt-get update -qq && apt-get install -yq git golang-go \
         && mkdir -p /opt/go \
         && export GOPATH=/opt/go \
-        && go get github.com/mailhog/mhsendmail
-
-4: Create your Drush alias file, and modify `docker-compose.yml`
-################################################################
-
-Create a file in your `docker/php` directory called `default.aliases.drushrc.php`, and add the following to it:
-
-.. code-block:: php
-   :linenos:
-
-    <?php
-    $aliases[isset($_SERVER['PHP_SITE_NAME']) ? $_SERVER['PHP_SITE_NAME'] : 'dev'] = [
-      'root' => '/var/www/html/' . (isset($_SERVER['PHP_DOCROOT']) ? $_SERVER['PHP_DOCROOT'] : ''),
-      'uri' => isset($_SERVER['PHP_HOST_NAME']) ? $_SERVER['PHP_HOST_NAME'] : 'localhost:8000',
-    ];
+        && go get github.com/mailhog/mhsendmail \
+    # Add configuration to PHP for MHSendmail
+        && { \
+          echo 'sendmail_path = "/opt/go/bin/mhsendmail --smtp-addr=mailhog:1025"'; \
+        } > /usr/local/etc/php/conf.d/mailhog.ini
 
 5:  Add a `php.ini` base file, and an entrypoint shell script
 #############################################################
 
-Create a base `php.ini` file with some commonly adjusted settings in it, plus some we will need in our next lesson.  Create a file named `php.ini` in `docker/php` and include the following:
+Create a base `php.ini` file with some commonly adjusted settings in it, plus some we will need in our next lesson.  Create a file named `php.ini` in `docker/php/conf.d` and include the following:
 
 .. code-block:: ini
    :linenos:
@@ -149,19 +145,6 @@ Create a base `php.ini` file with some commonly adjusted settings in it, plus so
     ;post_max_size =
     ;upload_max_filesize =
     ;max_execution_time =
-
-    [opcache]
-    opcache.enable = On
-    opcache.validate_timestamps = 1
-    opcache.revalidate_freq = 2
-    opcache.max_accelerated_files = 20000
-    opcache.memory_consumption = 64
-    opcache.interned_strings_buffer = 16
-    opcache.fast_shutdown = 1
-
-    [mailhog]
-    ; Mailhog php.ini settings.
-    sendmail_path = "/opt/go/bin/mhsendmail --smtp-addr=mailhog:1025"
 
 Now, we will add an Entrypoint script for our container.  Create a file called `docker-entrypoint.sh` in `docker/php` and include the following:
 
@@ -200,10 +183,8 @@ Add these two files to our Dockerfile by inserting the following lines, and spec
 .. code-block:: YAML
    :linenos:
 
-
-    # Add php.ini base file
-    COPY php.ini /usr/local/etc/php/conf.d/php.ini
-
+    # add PHP override config file
+    COPY conf.d/php.ini /usr/local/etc/php/conf.d/php.ini
     # Add entrypoint script
     COPY docker-entrypoint.sh /usr/local/bin/
     # Make sure it's executable
@@ -212,7 +193,6 @@ Add these two files to our Dockerfile by inserting the following lines, and spec
     ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
     CMD ["php-fpm"]
-
 
 6:  Modify the `docker-compose.yml` file to use our custom image definition
 ###########################################################################
@@ -223,11 +203,11 @@ Open `docker-compose.yml`, and replace the following:
    :linenos:
 
     php:
-      image: php:7.0-fpm
+      image: php:7.2-fpm
       expose:
         - 9000
       volumes:
-        - ./web:/var/www/html/web
+        - ./web:/var/www/html;
 
 with:
 
@@ -259,7 +239,7 @@ and save it.
 
 Now, execute `docker-compose up -d --build`, and let's see what happens.
 
-After your containers are up and running, navigate to `localhost:8000` and take a look at the information displayed.  You will now see that PHP has additional extensions installed for zip, iconv, mcrypt, pdo-mysql and gd, which were not installed previously.
+After your containers are up and running, navigate to `localhost:8000` and take a look at the information displayed.  You will now see that PHP has additional extensions installed for zip, iconv, mcrypt, pdo-mysql, gd and mbstring, which were not installed previously.
 
 Congratulations!  You have a complete Docker stack that is configured to support Drupal development.
 
@@ -268,7 +248,8 @@ Your `docker-compose.yml` file should look as follows:
 .. code-block:: yaml
    :linenos:
 
-    version: '2'
+    version: '3'
+
     services:
       web:
         build: ./docker/nginx/
@@ -279,11 +260,11 @@ Your `docker-compose.yml` file should look as follows:
         depends_on:
           - php
         environment:
-          #Make this the same for PHP
-          NGINX_DOCROOT: www
-          NGINX_SERVER_NAME: localhost
-          # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
-          NGINX_MAX_BODY_SIZE: 20m
+         #Make this the same for PHP
+         NGINX_DOCROOT: web
+         NGINX_SERVER_NAME: localhost
+         # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
+         NGINX_MAX_BODY_SIZE: 20m
 
       php:
         build: ./docker/php/
@@ -307,7 +288,7 @@ Your `docker-compose.yml` file should look as follows:
           PHP_DOCROOT: www
 
       db:
-        image: mariadb:10.1.21
+        image: mariadb:10.4.2
         environment:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: drupal
@@ -327,72 +308,45 @@ And your php `Dockerfile should look like:
 .. code-block:: yaml
    :linenos:
 
-    FROM php:7.0-fpm
+    FROM php:7.2-fpm
 
-    MAINTAINER Lisa Ridley "lhridley@gmail.com"
+    MAINTAINER Lisa Ridley "lisa@codementality.com"
 
-    RUN apt-get update && apt-get install -y \
+    RUN apt-get update && apt-get install -yq \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libmcrypt-dev \
-        libpng12-dev \
-        libbz2-dev \
+        libpng-dev \
+        libyaml-dev \
         unzip \
         zip \
         mariadb-client \
-    && docker-php-ext-install -j$(nproc) iconv mcrypt \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install pdo_mysql zip opcache bz2
-
-    # Register the COMPOSER_HOME environment variable
-    # Add global binary directory to PATH and make sure to re-export it
-    # Allow Composer to be run as root
-    # Composer version
-    ENV COMPOSER_HOME /composer
-    ENV PATH /composer/vendor/bin:$PATH
-    ENV COMPOSER_ALLOW_SUPERUSER 1
-    ENV COMPOSER_VERSION 1.2.3
-
-    # Setup the Composer installer
-    RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
-        && curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig \
-        && php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) \
-        !== trim(file_get_contents('/tmp/composer-setup.sig'))) \
-        { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . \
-        PHP_EOL; exit(1); }" \
-
-    # Install Composer
-        && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin \
-        --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \
-    # Install Prestissimo plugin for Composer -- allows for parallel processing of
-    # packages during install / update
-        && composer global require "hirak/prestissimo:^0.3" \
-        && chown -Rf www-data:www-data /composer \
-        && mkdir /var/www/docroot \
-        && chown -Rf www-data:www-data /var/www \
-    # Install Drush
-        && mkdir /usr/local/drush \
-        && cd /usr/local/drush \
-        && composer init --require=drush/drush:8.* -n \
-        && composer config bin-dir /usr/local/bin \
-        && composer install \
-        && drush init -y \
-    # Set up default location for drush alias files
-        && mkdir -p /etc/drush/site-aliases
-
-    # Copy drush alias file into image
-    COPY default.aliases.drushrc.php /etc/drush/site-aliases/
-
+        && rm -rf /var/lib/apt/lists/* \
+        && apt autoremove -y \
+        && docker-php-ext-install -j$(nproc) iconv \
+        && docker-php-ext-configure gd --with-png-dir=/usr --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+        && docker-php-ext-install -j$(nproc) gd \
+        && docker-php-ext-install pdo_mysql \
+        && docker-php-ext-install zip \
+        && docker-php-ext-install opcache \
+        && docker-php-ext-install zip \
+        && docker-php-ext-install mbstring \
+        && pecl install mcrypt-1.0.1 yaml \
+        && docker-php-ext-enable mcrypt yaml
+    RUN chmod 644 /usr/local/etc/php/conf.d/* \
+        && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+        && composer --version
     # Install Mailhog Sendmail support:
     RUN apt-get update -qq && apt-get install -yq git golang-go \
         && mkdir -p /opt/go \
         && export GOPATH=/opt/go \
-        && go get github.com/mailhog/mhsendmail
-
-    # Add php.ini base file
-    COPY php.ini /usr/local/etc/php/conf.d/php.ini
-
+        && go get github.com/mailhog/mhsendmail \
+    # Add configuration to PHP for MHSendmail
+        && { \
+          echo 'sendmail_path = "/opt/go/bin/mhsendmail --smtp-addr=mailhog:1025"'; \
+        } > /usr/local/etc/php/conf.d/mailhog.ini
+    # add PHP override config file
+    COPY conf.d/php.ini /usr/local/etc/php/conf.d/php.ini
     # Add entrypoint script
     COPY docker-entrypoint.sh /usr/local/bin/
     # Make sure it's executable
