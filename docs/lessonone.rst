@@ -16,7 +16,7 @@ Add the following to the top of your `docker-compose.yml` file
 
 .. code-block:: yaml
 
-   version: '2'
+   version: '3'
 
 This key designates which Docker Compose file format version that our `.yml` file is using.  Backwards compatibility has been maintained in docker-compose currently so that earlier versions will work with the current version of Docker Compose, but each version incorporates new features of Docker that weren't available in previous versions.
 
@@ -24,9 +24,11 @@ While backwards compatibility with the file format has been maintained, not all 
 
 If you see a `docker-compose.yml` file without a version key, it is a `version 1` docker-compose file.  This version is considered deprecated.
 
-`Version 2` is the current recommended format.  It requires that you are running Docker Engine version 1.10.0 or greater.  To designate a `docker-compose.yml` file as compliant with `Version 2`, you must explicitely include this line in your `.yml` file.
+`Version 2` was the second iteration of the docker-compose.yml file.  It requires that you are running Docker Engine version 1.10.0 or greater.  To designate a `docker-compose.yml` file as compliant with `Version 2`, you must explicitely include this line in your `.yml` file.
 
-Recently Docker published a `version '3'` version of the docker-compose file; however since it is new, and not yet supported on TravisCI, we will stick with Version 2 for this workshop.
+The current version of the Docker Compose file format is `version '3'`, with the most recent version being `version '3.7'`.  We will be using `version '3'` in this tutorial.
+
+For more information about the different versions, formats and requirements, please refer to the documentation on https://docs.docker.com located at `https://docs.docker.com/compose/compose-file/compose-versioning/`
 
 3:  Add a `services` key
 ########################
@@ -36,7 +38,7 @@ Add a `services` key below the `version` key in your `docker-compose.yml` file:
 .. code-block:: yaml
    :emphasize-lines: 2
 
-   version: '2'
+   version: '3'
    services:
 
 A Docker service is an instance of a Docker image that is used in your stack for a specific purpose.  Each service will provide a specific, isolated application in the overall configuration, and will be granted permission through configuration settings included in your `docker-compose.yml` file to interact with other service containers in the stack.
@@ -51,7 +53,7 @@ Next add a `web` service key below the `services` key, and define your web servi
 .. code-block:: yaml
    :emphasize-lines: 3-6
 
-   version: '2'
+   version: '3'
    services:
      web:
        image: nginx:latest
@@ -71,15 +73,28 @@ Ports are mapped using the format `<host port>:<internal port>`.
 5.  Launch the services with Docker Compose
 ###########################################
 
-Execute the following command:
+Execute the following command::
 
    docker-compose up -d
 
 `docker-compose up` builds, creates, starts, and attaches to containers for a service, in this case the service we've defined as our `web` service.  If we are starting a service that is tied to other services (we'll cover this later), this command will also start those services.
 
-By default, `docker-compose up` runs a service interactively, and when the command exits, the services that were launched with that command are terminated.  For a service such as a web service that needs to persist, this is not a desired behavior.  Because of that, there is a parameter, `-d` that can be passed when executing this command that will launch the services defined in your `docker-compose.yml` file as background services, and those services that need to persist (such as our `web` service) after execution of the `docker-compose` command ends will continue to run in the background.
+By default, `docker-compose up` runs a service interactively, and when the command exits, the services that were launched with that command are terminated.  For a service such as a web service that needs to persist, this is not a desired behavior.  Because of that, there is a parameter, `-d` that can be passed when executing this command that will launch the services defined in your `docker-compose.yml` file as background (daemon) services, and those services that need to persist (such as our `web` service) after execution of the `docker-compose` command ends will continue to run in the background.
 
-6.  Verify your service is running properly
+6.  Check that the containers are running with Docker Compose
+#############################################################
+
+Docker Compose has a command you can issue to see all of your running containers associated with the project's docker-compose.yml file.  You can check the status of the conatainers by executing the following command::
+
+   docker-compose ps
+
+You should see output similar to the following::
+
+         Name               Command          State          Ports        
+   ----------------------------------------------------------------------
+   dockerdrop_web_1   nginx -g daemon off;   Up      0.0.0.0:8000->80/tcp
+
+7.  Verify your service is running properly
 ###########################################
 
 Finally, let's see if our web service is running an NginX web server.
@@ -93,7 +108,7 @@ At this point, your `docker-compose.yml` should look like the following:
 .. code-block:: yaml
    :linenos:
 
-   version: '2'
+   version: '3'
    services:
      web:
        image: nginx:latest
