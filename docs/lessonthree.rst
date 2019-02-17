@@ -1,12 +1,12 @@
 Lesson 3:  Add PHP, customize NginX
 ===================================
 
-1: Add `www` folder with `index.php` to our project
+1: Add `web` folder with `index.php` to our project
 ###################################################
 
 Let's get our project ready to serve up a PHP application.
 
-Create a directory called `www` at the root of your project.  Inside that directory, create a file called `index.php` with the following contents:
+Create a directory called `web` at the root of your project.  Inside that directory, create a file called `index.php` with the following contents:
 
 .. code-block:: php
    :linenos:
@@ -24,7 +24,7 @@ Open `docker-compose.yml` in your favorite editor and add the following lines fo
    :linenos:
    :emphasize-lines: 10-15
 
-   version: '2'
+   version: '3'
 
    services:
 
@@ -34,14 +34,14 @@ Open `docker-compose.yml` in your favorite editor and add the following lines fo
          - 8000:80
 
       php:
-        image: php:7.0-fpm
+        image: php:7.2-fpm
         expose:
           - 9000
         volumes:
           - .:/var/www/html
 
 
-Note that we are pinning our PHP container to version `7.0-fpm`.
+Note that we are pinning our PHP container to version `7.2-fpm`.
 
 The Official PHP images don't expose port 9000 by default, so we specify it ourselves in our configuration settings.
 
@@ -215,9 +215,9 @@ Create a file called `Dockerfile` in the `docker/nginx` directory, and put the f
 .. code-block:: yaml
    :linenos:
 
-    FROM nginx:1.10.3
+    FROM nginx:1.14.2
 
-    MAINTAINER Lisa Ridley "lhridley@gmail.com"
+    MAINTAINER Lisa Ridley "lisa@codementality.com"
 
     COPY ./default.conf /etc/nginx/conf.d/default.conf
 
@@ -230,7 +230,7 @@ Create a file called `Dockerfile` in the `docker/nginx` directory, and put the f
 
     CMD ["nginx","-g daemon off;"]
 
-What we are doing here is creating a custom Docker container that is based on the nginx:1.10.3 container.  We are tagging ourselves as the maintainer, and we specify that we want to copy our `default.conf` file over the one supplied by NginX.
+What we are doing here is creating a custom Docker container that is based on the nginx:1.14.2 container.  We are tagging ourselves as the maintainer, and we specify that we want to copy our `default.conf` file over the one supplied by NginX.
 
 We are also adding a custom entrypoint script, which we'll create in a minute.
 
@@ -240,7 +240,7 @@ Now, to use the container we just defined, we need to modify our `docker-compose
 
 .. code-block:: yaml
 
-    image: nginx:1.10.3
+    image: nginx:1.14.2
 
 with this:
 
@@ -255,7 +255,7 @@ Now, let's add some environment variables for our NginX container.  These values
 .. code-block:: yaml
 
     environment:
-      NGINX_DOCROOT: www
+      NGINX_DOCROOT: web
       NGINX_SERVER_NAME: localhost
       # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
       NGINX_MAX_BODY_SIZE: 16m
@@ -264,14 +264,14 @@ Now, we need to share the volume from our PHP container with our NginX container
 
 .. code-block:: yaml
 
-    web:
-      build: ./docker/nginx/
-      ports:
-        - "8000:80"
-      volumes_from:
-        - php
-      depends_on:
-        - php
+      web:
+        build: ./docker/nginx/
+        ports:
+          - "8000:80"
+        volumes:
+          - .:/var/www/html
+        depends_on:
+          - php
 
 We're basically telling docker-compose that our web container is sharing the volumes that the PHP container has associated with it, and that our web container is dependent upon our PHP container.  What docker-compose will do is start the php container first before it starts the web container, so that the volumes shared from the PHP container are available to the web container when it starts.
 
@@ -321,9 +321,18 @@ Issue the following commands:
 .. code-block:: bash
 
     docker-compose down
-    docker-compose up -d
+    docker-compose up -d --build
 
-...and navigate to `localhost:8000`.  You should see information about your PHP web installation, as follows:
+The `--build` parameter instructs docker-compose to recreate any containers in the docker stack from any changes to a local Dockerfile included in a `build` parameter for a service container in your Docker Compose config file, `docker-compose.yml`.
+
+If you execute the command `docker-compose ps`, you should see something similar to the following::
+
+          Name                    Command               State          Ports        
+    --------------------------------------------------------------------------------
+    dockerdrop_php_1   docker-php-entrypoint php-fpm    Up      9000/tcp            
+    dockerdrop_web_1   /usr/local/bin/docker-entr ...   Up      0.0.0.0:8000->80/tcp
+
+Now in your browser, navigate to `http://localhost:8000`.  You should see information about your PHP web installation, as follows:
 
 .. image:: images/phpinfo.png
 
@@ -332,7 +341,7 @@ At this point your docker-compose.yml file should look as follows:
 .. code-block:: yaml
    :linenos:
 
-    version: '2'
+    version: '3'
 
     services:
 
@@ -346,13 +355,13 @@ At this point your docker-compose.yml file should look as follows:
          - php
         environment:
          #Make this the same for PHP
-         NGINX_DOCROOT: www
+         NGINX_DOCROOT: web
          NGINX_SERVER_NAME: localhost
          # Set to the same as the PHP_POST_MAX_SIZE, but use lowercase "m"
          NGINX_MAX_BODY_SIZE: 20m
 
       php:
-        image: php:7.0-fpm
+        image: php:7.2-fpm
         expose:
           - "9000"
         volumes:
